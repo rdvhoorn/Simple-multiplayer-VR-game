@@ -17,8 +17,8 @@ public class MoveGrabber : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        startPosition = transform.position;
-        startRotation = transform.rotation;
+        startPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+        startRotation = new Quaternion(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w);
     }
 
     // Update is called once per frame
@@ -38,9 +38,16 @@ public class MoveGrabber : NetworkBehaviour
     }
 
     // Reset Grabber
-    public void ResetGrabber() {
+    public void ResetGrabberMovement() {
+        ResetGrabberMovementServerRpc();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void ResetGrabberMovementServerRpc() {
         transform.position = startPosition;
         transform.rotation = startRotation;
+
+        moving = false;
     }
 
     // update Grabber Movement (server side )
