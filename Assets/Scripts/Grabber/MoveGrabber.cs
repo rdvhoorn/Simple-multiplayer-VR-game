@@ -14,6 +14,14 @@ public class MoveGrabber : NetworkBehaviour
 
     private bool moving = false;
 
+
+    public GameObject leftHandle;
+    public GameObject rightHanlde;
+    private bool GrabberOpen = true;
+    private bool GrabberStatic = true;
+    private float GrabberSpeed = 5f;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -37,6 +45,12 @@ public class MoveGrabber : NetworkBehaviour
         moving = true;
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    void ToggleGrabberHandleServerRpc() {
+        GrabberOpen = !GrabberOpen;
+        GrabberStatic = false;
+    }
+
     // Reset Grabber
     public void ResetGrabberMovement() {
         ResetGrabberMovementServerRpc();
@@ -47,12 +61,29 @@ public class MoveGrabber : NetworkBehaviour
         transform.position = startPosition;
         transform.rotation = startRotation;
 
+        ToggleGrabberHandleServerRpc();
         moving = false;
     }
 
     // update Grabber Movement (server side )
     [ServerRpc(RequireOwnership = false)]
     void UpdateGrabberServerRpc() {
+        if (leftHandle.transform.rotation.y*90 > 16 && !GrabberOpen && !GrabberStatic) {
+            GrabberStatic = true;
+        } else if (leftHandle.transform.rotation.y < 0 && GrabberOpen && !GrabberStatic) {
+            GrabberStatic = true;
+        }
+
+        if (!GrabberStatic) {
+            if (GrabberOpen) {
+                leftHandle.transform.Rotate(Vector3.down * GrabberSpeed * Time.deltaTime);
+                rightHanlde.transform.Rotate(Vector3.up * GrabberSpeed * Time.deltaTime);
+            } else {
+                leftHandle.transform.Rotate(Vector3.up * GrabberSpeed * Time.deltaTime);
+                rightHanlde.transform.Rotate(Vector3.down * GrabberSpeed * Time.deltaTime);
+            }
+        }
+
         if (transform.position.y > 6) {
             moving = false;
         }
@@ -61,6 +92,11 @@ public class MoveGrabber : NetworkBehaviour
 
         transform.position += Vector3.up * upwardsSpeed * Time.deltaTime;
         transform.Rotate(Vector3.up * rotationalSpeed * Time.deltaTime);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void CloseGrabberHandleServerRpc() {
+
     }
 
 }
