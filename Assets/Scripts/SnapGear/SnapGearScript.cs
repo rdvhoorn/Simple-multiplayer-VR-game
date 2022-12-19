@@ -7,7 +7,8 @@ public class SnapGearScript : NetworkBehaviour
 {
 
     public Vector3 startingLocation;
-    public List<Vector3> snapLocations;
+    public List<GameObject> snapObjects;
+    private GameObject snappedTo = null;
 
     private Camera currentCamera = null;
     private Vector3 mOffset;
@@ -19,6 +20,8 @@ public class SnapGearScript : NetworkBehaviour
         mZCoord = currentCamera.WorldToScreenPoint(transform.position).z;
         // Store offset = gameobject world pos - mouse world pos
         mOffset = transform.position - GetMouseAsWorldPoint();
+
+        snappedTo = null;
     }
 
     private Vector3 GetMouseAsWorldPoint() {
@@ -39,9 +42,10 @@ public class SnapGearScript : NetworkBehaviour
     void OnMouseUp() {
         currentCamera = null;
 
-        foreach (Vector3 snapLocation in snapLocations) {
-            if (Vector3.Distance(transform.position, snapLocation) < 0.5) {
-                SetBoxPositionServerRpc(snapLocation);
+        foreach (GameObject snapObject in snapObjects) {
+            if (Vector3.Distance(transform.position, snapObject.transform.position) < 0.5) {
+                SetBoxPositionServerRpc(snapObject.transform.position);
+                snappedTo = snapObject;
                 return;
             }
         }
@@ -56,5 +60,18 @@ public class SnapGearScript : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     void SetBoxPositionServerRpc(Vector3 position) {
         transform.position = position;
+    }
+
+    void Update() {
+        if (snappedTo == null) return;
+
+        RotateServerRpc();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void RotateServerRpc() {
+        float rotationalSpeed = snappedTo.GetComponent<SnapRotationObject>().GetRotationSpeed();
+        Debug.Log(rotationalSpeed);
+        transform.Rotate(Vector3.right * rotationalSpeed * Time.deltaTime);
     }
 }
