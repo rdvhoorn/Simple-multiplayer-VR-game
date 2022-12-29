@@ -66,9 +66,6 @@ public class SpringToRotationGear : BaseSpringBehaviour, ISpringTo<Vector3>, ISp
         } while (Mathf.Abs(1 + Quaternion.Dot(transform.rotation, TargetRotation)) > 0.00001 || Mathf.Abs(Spring.CurrentVelocity.y) > 0.001);
 
         Spring.Reset();
-        Debug.Log("Reset!");
-
-        // gameObject.transform.eulerAngles = rootPosition;
         Spring.StartValue = rootPosition;
         Spring.EndValue = rootPosition;
         prevValue = rootPosition;
@@ -118,8 +115,6 @@ public class SpringToRotationGear : BaseSpringBehaviour, ISpringTo<Vector3>, ISp
 
     void Update() {
         if (!springing && Vector3.Distance(gameObject.transform.eulerAngles, Spring.StartValue) > 0.2 && (Vector3.Distance(gameObject.transform.eulerAngles, prevValue) < 0.01)) {
-            Debug.Log(Vector3.Distance(gameObject.transform.eulerAngles, Spring.StartValue));
-            // Debug.Log(gameObject.transform.eulerAngles);
             Spring.StartValue = new Vector3(Spring.EndValue.x, -1, Spring.EndValue.z);
             springing = true;
             SpringTo(Spring.StartValue);
