@@ -16,6 +16,6 @@ public class TurnGear : NetworkBehaviour
 
     [ServerRpc(RequireOwnership = false)]
     void UpdateGearServerRpc() {
-        transform.Rotate(Vector3.right * rotationalSpeed * Time.deltaTime);
+        transform.Rotate(Vector3.up * rotationalSpeed * Time.deltaTime);
     }
 }
