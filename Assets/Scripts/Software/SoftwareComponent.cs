@@ -5,39 +5,44 @@ using UnityEngine;
 
 public class SoftwareComponent : NetworkBehaviour
 {
-    public List<GameObject> CodeBlockContentsBlock0;
-    public List<GameObject> CodeBlockContentsBlock1;
-    public List<GameObject> CodeBlockContentsBlock2;
 
-    public GameObject selected = null;
+    private GameObject selected = null;
+    public GameObject[] buttonGroups;
 
-    // Start is called before the first frame update
-    void Start()
-    {
+    public void appendCodeToSelected(GameObject newCode) {
+        if (selected == null) return;
         
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    public void CodeBlockSelect(int codeBlockId) {
+        selected.GetComponent<CodeBlockSelect>().SetCode(newCode);
     }
 
     public void newSelected(GameObject newlySelectedObject) {
+        foreach (GameObject obj in buttonGroups) {
+                obj.GetComponent<ButtonGroup>().deactivate();
+            }
+
         if (selected != null) {
             selected.GetComponent<CodeBlockSelect>().Deselect();
+
+            foreach (GameObject obj in selected.GetComponent<CodeBlockSelect>().AllowedButtonGroups) {
+                obj.GetComponent<ButtonGroup>().deactivate();
+            }
         }
 
         if (newlySelectedObject == selected) {
             selected = null;
             newlySelectedObject.GetComponent<CodeBlockSelect>().Deselect();
+
+            foreach (GameObject obj in buttonGroups) {
+                obj.GetComponent<ButtonGroup>().activate();
+            }
+
             return;
         }
 
         newlySelectedObject.GetComponent<CodeBlockSelect>().Select();
+        foreach (GameObject obj in newlySelectedObject.GetComponent<CodeBlockSelect>().AllowedButtonGroups) {
+                obj.GetComponent<ButtonGroup>().activate();
+            }
         selected = newlySelectedObject;
     }
 }
