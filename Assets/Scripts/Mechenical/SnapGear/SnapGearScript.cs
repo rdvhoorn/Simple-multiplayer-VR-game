@@ -9,6 +9,7 @@ public class SnapGearScript : NetworkBehaviour
     public Vector3 startingLocation;
     public List<GameObject> snapObjects;
     private GameObject snappedTo = null;
+    public GameObject mechenical;
 
     private Camera currentCamera = null;
     private Vector3 mOffset;
@@ -22,6 +23,7 @@ public class SnapGearScript : NetworkBehaviour
         mOffset = transform.position - GetMouseAsWorldPoint();
 
         snappedTo = null;
+        // mechenical.GetComponent<Mechenical>().DisableGears();
     }
 
     private Vector3 GetMouseAsWorldPoint() {
@@ -46,6 +48,7 @@ public class SnapGearScript : NetworkBehaviour
             if (Vector3.Distance(transform.position, snapObject.transform.position) < 0.5) {
                 SetBoxPositionServerRpc(snapObject.transform.position);
                 snappedTo = snapObject;
+                // mechenical.GetComponent<Mechenical>().EnableGears();
                 return;
             }
         }
@@ -71,7 +74,6 @@ public class SnapGearScript : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void RotateServerRpc() {
         float rotationalSpeed = snappedTo.GetComponent<SnapRotationObject>().GetRotationSpeed();
-        Debug.Log(rotationalSpeed);
         transform.Rotate(Vector3.right * rotationalSpeed * Time.deltaTime);
     }
 }

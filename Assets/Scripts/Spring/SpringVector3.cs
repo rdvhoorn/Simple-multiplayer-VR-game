@@ -127,9 +127,9 @@ public class SpringVector3 : BaseSpring<Vector3>
             ZSpring.Evaluate(DeltaTime)
         );
         CurrentVelocity = new Vector3(
-            XSpring.CurrentVelocity, 
-            YSpring.CurrentVelocity, 
-            ZSpring.CurrentVelocity
+            XSpring.CurrentVelocity, 0, 0
+            // YSpring.CurrentVelocity, 
+            // ZSpring.CurrentVelocity
         );
         return CurrentValue;
     }

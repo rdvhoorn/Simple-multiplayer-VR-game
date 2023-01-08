@@ -42,7 +42,7 @@ public class PlayerMovement : NetworkBehaviour
     [ServerRpc(RequireOwnership=false)]
     private void RandomSpawnServerRpc() {
         // transform player to random spawn position
-        transform.position = new Vector3(Random.Range(positionRange, -positionRange), 0, Random.Range(positionRange, -positionRange));
+        transform.position = new Vector3(-4, 0, 5);
         transform.rotation = new Quaternion(0, 180, 0, 0);
     }
 }

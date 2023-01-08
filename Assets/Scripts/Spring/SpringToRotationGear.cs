@@ -6,7 +6,7 @@ public class SpringToRotationGear : BaseSpringBehaviour, ISpringTo<Vector3>, ISp
     private SpringVector3 Spring;
 
     private bool springing = false;
-    private Vector3 rootPosition;
+    private Vector3 rootRotation;
     private Vector3 prevValue;
 
     private void Awake()
@@ -20,7 +20,7 @@ public class SpringToRotationGear : BaseSpringBehaviour, ISpringTo<Vector3>, ISp
         };
 
         prevValue = Spring.StartValue;
-        rootPosition = Spring.StartValue;
+        rootRotation = Spring.StartValue;
     }
 
     public void SpringTo(Vector3 TargetRotation)
@@ -51,24 +51,21 @@ public class SpringToRotationGear : BaseSpringBehaviour, ISpringTo<Vector3>, ISp
             Spring.UpdateEndValue(TargetRotation.eulerAngles, Spring.CurrentVelocity);
         }
 
-        // while (Mathf.Abs(1 + Quaternion.Dot(transform.rotation, TargetRotation)) > 0.00001)
-        // {
-        //     Debug.Log(Spring.CurrentVelocity.sqrMagnitude);
-        //     transform.rotation = Quaternion.Euler(Spring.Evaluate(Time.deltaTime));
-
-        //     yield return null;
-        // }
 
         do {
+            // transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(Spring.Evaluate(Time.deltaTime)), Time.deltaTime);
             transform.rotation = Quaternion.Euler(Spring.Evaluate(Time.deltaTime));
 
             yield return null;
-        } while (Mathf.Abs(1 + Quaternion.Dot(transform.rotation, TargetRotation)) > 0.00001 || Mathf.Abs(Spring.CurrentVelocity.y) > 0.001);
+        } while (Mathf.Abs(gameObject.GetComponent<Rigidbody>().rotation.eulerAngles.x - rootRotation.x) > 0.1 || Mathf.Abs(Spring.CurrentVelocity.x) > 0.01);
 
+        Debug.Log("Done");
         Spring.Reset();
-        Spring.StartValue = rootPosition;
-        Spring.EndValue = rootPosition;
-        prevValue = rootPosition;
+        Spring.StartValue = rootRotation;
+        Spring.EndValue = rootRotation;
+        gameObject.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
+        gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
+        prevValue = rootRotation;
         springing = false;
     }
 
@@ -114,8 +111,10 @@ public class SpringToRotationGear : BaseSpringBehaviour, ISpringTo<Vector3>, ISp
     }
 
     void Update() {
-        if (!springing && Vector3.Distance(gameObject.transform.eulerAngles, Spring.StartValue) > 0.2 && (Vector3.Distance(gameObject.transform.eulerAngles, prevValue) < 0.01)) {
-            Spring.StartValue = new Vector3(Spring.EndValue.x, -1, Spring.EndValue.z);
+        float dist = Mathf.Abs(gameObject.GetComponent<Rigidbody>().rotation.eulerAngles.x - rootRotation.x);
+        if (!springing && dist > 10 && (Vector3.Distance(gameObject.transform.eulerAngles, prevValue) < 0.00000001)) {
+            Debug.Log("Spring!");
+            Spring.StartValue = new Vector3(0, 90, 0);
             springing = true;
             SpringTo(Spring.StartValue);
         }
