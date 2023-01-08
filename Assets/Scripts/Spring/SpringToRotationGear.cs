@@ -53,8 +53,10 @@ public class SpringToRotationGear : BaseSpringBehaviour, ISpringTo<Vector3>, ISp
 
 
         do {
-            // transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(Spring.Evaluate(Time.deltaTime)), Time.deltaTime);
-            transform.rotation = Quaternion.Euler(Spring.Evaluate(Time.deltaTime));
+            gameObject.GetComponent<Rigidbody>().MoveRotation(Quaternion.Euler(Spring.Evaluate(Time.deltaTime)));
+            // gameObject.GetComponent<Rigidbody>().MoveRotation(transform.rotation * Quaternion.Inverse(Quaternion.Euler(Spring.Evaluate(Time.deltaTime))));
+
+            // transform.rotation = Quaternion.Euler(Spring.Evaluate(Time.deltaTime));
 
             yield return null;
         } while (Mathf.Abs(gameObject.GetComponent<Rigidbody>().rotation.eulerAngles.x - rootRotation.x) > 0.1 || Mathf.Abs(Spring.CurrentVelocity.x) > 0.01);
@@ -111,8 +113,12 @@ public class SpringToRotationGear : BaseSpringBehaviour, ISpringTo<Vector3>, ISp
     }
 
     void Update() {
+        float newRotation = transform.rotation.eulerAngles.x;
+        if (prevValue.x == newRotation) return;
+
         float dist = Mathf.Abs(gameObject.GetComponent<Rigidbody>().rotation.eulerAngles.x - rootRotation.x);
-        if (!springing && dist > 10 && (Vector3.Distance(gameObject.transform.eulerAngles, prevValue) < 0.00000001)) {
+
+        if (!springing && dist > 10 && Mathf.Abs(newRotation - prevValue.x) < 0.1) {
             Debug.Log("Spring!");
             Spring.StartValue = new Vector3(0, 90, 0);
             springing = true;
