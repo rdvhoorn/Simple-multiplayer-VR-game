@@ -8,15 +8,15 @@ public class StartLever : MonoBehaviour
     private Rigidbody connectedGearRb;
     public Rigidbody leverRb;
 
-    private Quaternion currentRotation;
+    private Quaternion previousRotation;
 
 
     // Start is called before the first frame update
     void Start()
     {
         connectedGearRb = connectedGear.GetComponent<Rigidbody>();
-        currentRotation = leverRb.rotation;
-        Debug.Log(currentRotation);
+        previousRotation = leverRb.rotation;
+        connectedGear.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
     }
 
     // Update is called once per frame
@@ -25,5 +25,7 @@ public class StartLever : MonoBehaviour
         Quaternion newRotation = leverRb.rotation;
 
         connectedGearRb.MoveRotation(newRotation);
+
+        previousRotation = newRotation;
     }
 }
