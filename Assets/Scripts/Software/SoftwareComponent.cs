@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
+public enum SoftwareState {CORRECT, PLAUSIBLE, WRONG};
+
 public class SoftwareComponent : NetworkBehaviour
 {
 
@@ -44,5 +46,13 @@ public class SoftwareComponent : NetworkBehaviour
                 obj.GetComponent<ButtonGroup>().activate();
             }
         selected = newlySelectedObject;
+    }
+
+    public SoftwareState CalculateSoftwareState() {
+        return SoftwareState.CORRECT;
+    }
+
+    public int[] GetCurrentSoftwareParameters() {
+        return new int[1];
     }
 }
